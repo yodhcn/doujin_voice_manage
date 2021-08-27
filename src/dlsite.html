@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https://img.dlsite.jp https://www.dlsite.com; script-src 'self';img-src 'self' https:;">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>查询DLsite音声</title>
+    <link rel="stylesheet" type="text/css" href="./style/public.css">
+    <link rel="stylesheet" type="text/css" href="./style/main.css">
+</head>
+
+<body>
+    <div id="loading-gif" class="loader">
+        <div class="loader-inner">
+            <div class="loader-line-wrap">
+                <div class="loader-line"></div>
+            </div>
+            <div class="loader-line-wrap">
+                <div class="loader-line"></div>
+            </div>
+            <div class="loader-line-wrap">
+                <div class="loader-line"></div>
+            </div>
+            <div class="loader-line-wrap">
+                <div class="loader-line"></div>
+            </div>
+            <div class="loader-line-wrap">
+                <div class="loader-line"></div>
+            </div>
+        </div>
+    </div>
+    <header>
+        <div class="vertical-container vertical-container-dlsite">
+            <div class="dlsite-f">
+                <img src="img/logo-dlsite-r18.png" alt="DLsite R18" width="132" height="25">
+                <a id="dlsite-btn" class="btn-s" href="../index.html">本地搜索</a>
+            </div>
+            <div class="dl-flex-s">
+                <div class="count-style"><span id="count"></span></div>
+                <div class="search-style">
+                    <input type="search" id="rj-search" name="q" aria-label="Search through site content">
+                    <button id="search-btn" class="search-btn-class">搜索</button>
+                </div>
+            </div>
+        </div>
+        <div class="radio-box">
+            <div class="box">
+                <input type="radio" id="radio1" name="radio" checked="checked" value="0"/><label for="radio1">DL查询</label>
+            </div>
+            <div class="line"></div>
+            <div class="box">
+                <input type="radio" id="radio2" name="radio" value="1"/><label for="radio2">多值查询</label>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="list-style">
+            <ul id="voice-list"></ul>
+        </div>
+    </main>
+    <footer>
+        <div id="page-div">
+            <button id="homePage" class="ft-btn btn-p1">首页</button>
+            <button id="previous" class="ft-btn btn-p2">上页</button>
+            <button id="next" class="ft-btn btn-p3">下页</button>
+        </div>
+    </footer>
+</body>
+<script src="./js/getDlsite.js" type="module"></script>
+
+</html>

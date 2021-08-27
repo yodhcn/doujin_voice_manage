@@ -1,0 +1,40 @@
+{
+  "name": "doujin_voice_manage",
+  "version": "3.1.0",
+  "description": "doujin voice list show",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "productName": "同人音声搜索",
+    "appId": "",
+    "copyright": "",
+    "directories": {
+      "output": "build"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": false,
+      "createStartMenuShortcut": false,
+      "installerIcon": "./src/img/seashell-256.ico",
+      "uninstallerIcon": "./src/img/seashell-256.ico",
+      "installerHeader":"./src/img/seashell-256.ico",
+      "installerHeaderIcon": "./src/img/seashell-256.ico"
+    },
+    "win": {
+      "icon": "./src/img/seashell-256.ico",
+      "target": [
+        {
+          "target": "nsis"
+        }
+      ]
+    }
+  },
+  "author": "yang",
+  "license": "ISC"
+}
