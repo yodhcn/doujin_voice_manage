@@ -23,7 +23,7 @@ refreshBtn.addEventListener('click',e => {
     getList(curPath)
 })
 ipc.on('selected-directory', (e, path) => {
-    e.preventDefault()
+    console.log(e)
     if (path.length !== 0) {
         localStorage.setItem('path', path[0])
         curPath = localStorage.getItem('path')
