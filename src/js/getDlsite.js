@@ -10,18 +10,10 @@ const countEle = document.getElementById('count')
 const nextBtn = document.getElementById('next')
 const previousBtn = document.getElementById('previous')
 const homePageBtn = document.getElementById('homePage')
-const radio = document.getElementsByName("radio")
 const pageDiv = document.getElementById('page-div')
 voiceListHtml.innerHTML = `<p class="dl-text">请在搜索框输入RJ号</p>`
 let pageIndex = 1
 
-const radioResult = () => {
-    for (let i = 0; i < radio.length; i++) {
-        if (radio[i].checked) {
-            return radio[i].value
-        }
-    }
-}
 const turnPage = () => {
     nextBtn.addEventListener('click', e => {
         e.preventDefault()
@@ -83,7 +75,10 @@ const getDlsiteNew = (pageIndex,val) => {
         pageDiv.style.display = 'block'
         getDlsiteApi(urlArr)
     }).catch(err => {
-        console.log(err)
+        setTimeout(() => {
+            alert(err)
+        }, 10,pubilcMoudules.loadingClose())
+        
     })
 }
 const getDlsiteApi = async (urls) => {
@@ -114,29 +109,20 @@ const searchFunc = () => {
             })
             getDlsiteApi(urls)
         }
-        getDlsiteNew(pageIndex, searchVal.value)
+        else
+        {
+            getDlsiteNew(pageIndex, val)
+        }
     }
     searchVal.addEventListener('keydown',e => {
         if (e.key == 'Enter') {
             e.preventDefault()
-            console.log(typeof radioResult())
-            if (radioResult() == 0){
-                getDlsiteNew(pageIndex, searchVal.value)
-            }
-            else
-            {
-                eventFunc(searchVal.value)
-            }
+            eventFunc(searchVal.value)
         }
     })
     searchBtn.addEventListener('click',e => {
         e.preventDefault()
-        if (radioResult() == 0) {
-            getDlsiteNew(pageIndex, searchVal.value)
-        }
-        else {
-            eventFunc(searchVal.value)
-        }
+        eventFunc(searchVal.value)
     })
 }
 const outPutHtml = (dlComments) => {
