@@ -11,8 +11,8 @@ const nextBtn = document.getElementById('next')
 const previousBtn = document.getElementById('previous')
 const homePageBtn = document.getElementById('homePage')
 const pageDiv = document.getElementById('page-div')
-voiceListHtml.innerHTML = `<p class="dl-text">请在搜索框输入RJ号</p>`
 let pageIndex = 1
+voiceListHtml.innerHTML = `<p class="dl-text">请在搜索框输入RJ号</p>`
 
 const turnPage = () => {
     nextBtn.addEventListener('click', e => {
@@ -64,6 +64,9 @@ const btnAnimation = (flag) =>{
 const getDlsiteNew = (pageIndex,val) => {
     pubilcMoudules.loadingShow()
     let keyVal = val ? '/keyword/' + val : ''
+    //全部分类搜索
+    // let url = `https://www.dlsite.com/maniax/sapi/=/language/jp/sex_category/+${keyVal}/age_category/+/work_category[0]/doujin/work_category[1]/pc/work_category[2]/books/work_category[3]/drama/order[0]/release_d/options[0]/JPN/options[1]/CHI/options[2]/CHI_HANS/options[3]/CHI_HANT/options[4]/NM/options_name[0]/日语作品/options_name[1]/中文作品/options_name[2]/简体字作品/options_name[3]/繁字体作品/options_name[4]/不限语言/per_page/30/page/${pageIndex}/format/json/?cdn_cache=1`
+    //音声分类
     let url = `https://www.dlsite.com/maniax/sapi/=/language/jp/sex_category/+${keyVal}/work_category[0]/doujin/work_category[1]/books/work_category[2]/pc/order[0]/release_d/work_type_category[0]/audio/work_type_category_name[0]/音声・ASMR/per_page/30/page/${pageIndex}/format/json/?cdn_cache=1`
     let urlRj = "https://www.dlsite.com/home/api/=/product.json?workno="
     fetch(url).then(res => {
@@ -104,6 +107,7 @@ const searchFunc = () => {
             val = 'RJ' + val
         }
         if (pubilcMoudules.escapeRegex(val).match(RJ_REGEX)) {
+            pageIndex = 1
             let urls = val.match(RJ_REGEX).map(item => {
                 return url + item.toUpperCase()
             })

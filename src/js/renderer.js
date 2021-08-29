@@ -44,7 +44,7 @@ const getList = (voicePath) => {
     // })
 }
 //通过本地文件名获取dlsite api的数据
-const getListElement = async (localDirList, voicePath) => {
+const getListElement = async (localDirList, voicePath, flag) => {
     let voiceComments = []
     let urls = []
     for (const item of localDirList) {
@@ -84,14 +84,21 @@ const getListElement = async (localDirList, voicePath) => {
     })
     voiceComments.push(dlsiteComments)
     voiceComments = voiceComments.flat(Infinity)
-    getHtml(voiceComments, voicePath)
+    getHtml(voiceComments, voicePath, flag)
 }
 //渲染页面
-const getHtml = (dlsiteData, voicePath) => {
-    outputHtml(dlsiteData, voicePath)
+const getHtml = (dlsiteData, voicePath, flag) => {
+    outputHtml(dlsiteData, voicePath, flag)
     const eventFunc = (val) => {
         let newArr = selectMatchItem(dlsiteData, val)
-        outputHtml(newArr, voicePath)
+        if (val.match(RJ_REGEX)&&newArr.length == 0){
+            let newVal = val.split()
+            getListElement(newVal,voicePath,'dl')
+        }
+        else
+        {
+            outputHtml(newArr, voicePath)
+        }
     }
     searchVal.addEventListener('keydown', e => {
         if (e.key == 'Enter'){
@@ -108,15 +115,24 @@ const getHtml = (dlsiteData, voicePath) => {
         eventFunc(searchVal.value)
     })
 }
-const outputHtml = (currentData, voicePath) => {
+const outputHtml = (currentData, voicePath, flag) => {
     try {
         let count = currentData.length
         countEle.innerHTML = `共${count}条结果`
         if (count === 0) return pubilcMoudules.loadingClose(), voiceList.innerHTML = ""
         let dlsiteUrl = []
         let voiceHtml = `${currentData.map((item,index) => {
-            let fileType = fs.lstatSync(path.join(voicePath, item.fileName)).isDirectory() ? '打开目录' : '打开文件'
-            let buttonEle = item.product_id ? `<button class=text-style-btn id=${item.product_id}>打开网址</button>` : ''
+            let fileType = ''
+            let buttonEle = ''
+            if(flag === 'dl'){
+                fileType = `<button class=text-style-btn id=${item.product_id}hvdb>打开HVDB</button>`
+                buttonEle = `<button class=text-style-btn id=${item.product_id}>打开网址</button>`
+            }
+            else
+            {
+                fileType = fs.lstatSync(path.join(voicePath, item.fileName)).isDirectory() ? `<button class=text-style-btn id=openDir${index}>打开目录</button>` : `<button class=text-style-btn id=openDir${index}>打开文件</button>`
+                buttonEle = item.product_id ? `<button class=text-style-btn id=${item.product_id}>打开网址</button>` : ''
+            }
             if(item.product_id){
                 dlsiteUrl.push(`https://www.dlsite.com/maniax/work/=/product_id/${item.product_id}.html`)
             }
@@ -124,7 +140,7 @@ const outputHtml = (currentData, voicePath) => {
             return `<li>
         <div class=img-style><img src=${pubilcMoudules.getImgSrc(item.product_id)}></img></div>
         <div class=text-style>
-            <button class=text-style-btn id=openDir${index}>${fileType}</button>
+            ${fileType}
             ${buttonEle}
             <div class=text-style-div><span class=title-style>RJ号:</span> ${item.product_id ? item.product_id : '无'}</div>
             <div class=text-style-div><span class=title-style>标题:</span> ${item.product_name}</div>
@@ -136,7 +152,13 @@ const outputHtml = (currentData, voicePath) => {
         voiceList.innerHTML = voiceHtml
         pubilcMoudules.loadingClose()
         pubilcMoudules.ctrlF(searchVal)
-        openDirFile(currentData, dlsiteUrl,voicePath)
+        if(flag === 'dl'){
+            openUrl(currentData)
+        }
+        else
+        {
+            openDirFile(currentData, dlsiteUrl, voicePath)
+        }
     } catch (error) {
         return
     }
@@ -167,6 +189,23 @@ const openDirFile = (currentData, dlsiteUrl,voicePath) => {
         dlsiteUrlBtn.addEventListener('click', (e) => {
             e.preventDefault()
             shell.openExternal(url)
+        })
+    })
+}
+//open hvdb
+const openUrl = (currentData) => {
+    currentData.map(item => {
+        let dlUrl = `https://www.dlsite.com/maniax/work/=/product_id/${item.product_id}.html`
+        let hvdbUrl = `https://hvdb.me/Dashboard/WorkDetails/${item.product_id.slice(2)}`
+        let dlBtn = document.getElementById(item.product_id)
+        let hvdbBtn = document.getElementById(`${item.product_id}hvdb`)
+        dlBtn.addEventListener('click',e => {
+            e.preventDefault()
+            shell.openExternal(dlUrl)
+        })
+        hvdbBtn.addEventListener('click', e => {
+            e.preventDefault()
+            shell.openExternal(hvdbUrl)
         })
     })
 }
