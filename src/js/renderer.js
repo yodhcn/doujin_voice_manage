@@ -23,7 +23,6 @@ refreshBtn.addEventListener('click',e => {
     getList(curPath)
 })
 ipc.on('selected-directory', (e, path) => {
-    console.log(e)
     if (path.length !== 0) {
         localStorage.setItem('path', path[0])
         curPath = localStorage.getItem('path')
@@ -44,7 +43,7 @@ const getList = (voicePath) => {
     // })
 }
 //通过本地文件名获取dlsite api的数据
-const getListElement = async (localDirList, voicePath, flag) => {
+const getListElement = async (localDirList, voicePath) => {
     let voiceComments = []
     let urls = []
     for (const item of localDirList) {
@@ -84,20 +83,34 @@ const getListElement = async (localDirList, voicePath, flag) => {
     })
     voiceComments.push(dlsiteComments)
     voiceComments = voiceComments.flat(Infinity)
-    getHtml(voiceComments, voicePath, flag)
+    getHtml(voiceComments, voicePath)
 }
 //渲染页面
-const getHtml = (dlsiteData, voicePath, flag) => {
-    outputHtml(dlsiteData, voicePath, flag)
-    const eventFunc = (val) => {
+const getHtml = (dlsiteData, voicePath) => {
+    outputHtml(dlsiteData, voicePath,'nodl')
+    const eventFunc = async (val) => {
         let newArr = selectMatchItem(dlsiteData, val)
-        if (val.match(RJ_REGEX)&&newArr.length == 0){
-            let newVal = val.split()
-            getListElement(newVal,voicePath,'dl')
+        if (newArr.length === 0 && pubilcMoudules.escapeRegex(val).match(RJ_REGEX)){
+            let url = "https://www.dlsite.com/home/api/=/product.json?workno="
+            let urls = val.match(RJ_REGEX).map(item => {
+                return url + item.toUpperCase()
+            })
+            const texts = await Promise.all(urls.map(async url => {
+                const res = await fetch(url)
+                return res.json()
+            }))
+            const result = texts.flat(Infinity)
+            let dlComments = result.map(item => {
+                item.age_category_string = item.age_category_string.replace('adult', 'R18')
+                item.age_category_string = item.age_category_string.replace('general', '全年龄')
+                item.age_category_string = item.age_category_string.replace('r15', 'R15')
+                return item
+            })
+            outputHtml(dlComments,voicePath,'dl')
         }
         else
         {
-            outputHtml(newArr, voicePath)
+            outputHtml(newArr, voicePath,'nodl')
         }
     }
     searchVal.addEventListener('keydown', e => {
@@ -121,22 +134,22 @@ const outputHtml = (currentData, voicePath, flag) => {
         countEle.innerHTML = `共${count}条结果`
         if (count === 0) return pubilcMoudules.loadingClose(), voiceList.innerHTML = ""
         let dlsiteUrl = []
-        let voiceHtml = `${currentData.map((item,index) => {
+        let voiceHtml = `${currentData.map((item, index) => {
             let fileType = ''
             let buttonEle = ''
-            if(flag === 'dl'){
+            if (flag === 'dl') {
                 fileType = `<button class=text-style-btn id=${item.product_id}hvdb>打开HVDB</button>`
                 buttonEle = `<button class=text-style-btn id=${item.product_id}>打开网址</button>`
+                item.chinese = 'No'
             }
-            else
-            {
+            else {
                 fileType = fs.lstatSync(path.join(voicePath, item.fileName)).isDirectory() ? `<button class=text-style-btn id=openDir${index}>打开目录</button>` : `<button class=text-style-btn id=openDir${index}>打开文件</button>`
                 buttonEle = item.product_id ? `<button class=text-style-btn id=${item.product_id}>打开网址</button>` : ''
+                item.chinese = item.fileName.match('汉化' || '中文') ? 'Yes' : 'No'
             }
-            if(item.product_id){
+            if (item.product_id) {
                 dlsiteUrl.push(`https://www.dlsite.com/maniax/work/=/product_id/${item.product_id}.html`)
             }
-            item.chinese = item.fileName.match('汉化' || '中文') ? 'Yes' : 'No'
             return `<li>
         <div class=img-style><img src=${pubilcMoudules.getImgSrc(item.product_id)}></img></div>
         <div class=text-style>
@@ -152,11 +165,10 @@ const outputHtml = (currentData, voicePath, flag) => {
         voiceList.innerHTML = voiceHtml
         pubilcMoudules.loadingClose()
         pubilcMoudules.ctrlF(searchVal)
-        if(flag === 'dl'){
+        if (flag === 'dl') {
             openUrl(currentData)
         }
-        else
-        {
+        else {
             openDirFile(currentData, dlsiteUrl, voicePath)
         }
     } catch (error) {
@@ -199,7 +211,7 @@ const openUrl = (currentData) => {
         let hvdbUrl = `https://hvdb.me/Dashboard/WorkDetails/${item.product_id.slice(2)}`
         let dlBtn = document.getElementById(item.product_id)
         let hvdbBtn = document.getElementById(`${item.product_id}hvdb`)
-        dlBtn.addEventListener('click',e => {
+        dlBtn.addEventListener('click', e => {
             e.preventDefault()
             shell.openExternal(dlUrl)
         })
@@ -209,5 +221,4 @@ const openUrl = (currentData) => {
         })
     })
 }
-
 getList(curPath)

@@ -1,6 +1,6 @@
 {
   "name": "doujin_voice_manage",
-  "version": "3.3.0",
+  "version": "3.3.5",
   "description": "doujin voice list show",
   "main": "main.js",
   "scripts": {
