@@ -138,7 +138,7 @@ header .vertical-container-dlsite {
 }
 /* main style */
 main {
-  padding-top: 8%;
+  padding-top: 75px;
   width: 100%;
 }
 main .list-style {
@@ -158,10 +158,11 @@ main .text-style {
   display: inline-block;
 }
 main .text-style-div {
-  margin: 1vw 0;
+  margin: 0.7vw 0;
 }
 main .img-style img {
-  height: 180px;
+  width: 280px;
+  height: 210px;
 }
 main #voice-list button {
   background-color: #4caf50; /* Green */

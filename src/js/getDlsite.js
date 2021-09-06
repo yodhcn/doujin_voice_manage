@@ -1,8 +1,5 @@
 import * as pubilcMoudules from './pubilcMoudules.js'
-const { shell } = require('electron')
 
-const RJ_REGEX = new RegExp("[BRV][JE][0-9]{6}", "gi")
-const Num_REGEX = new RegExp("[0-9]{6}", "gi")
 const voiceListHtml = document.getElementById('voice-list')
 const searchBtn = document.getElementById('search-btn')
 const searchVal = document.getElementById('rj-search')
@@ -68,7 +65,7 @@ const getDlsiteNew = (pageIndex,val) => {
     // let url = `https://www.dlsite.com/maniax/sapi/=/language/jp/sex_category/+${keyVal}/age_category/+/work_category[0]/doujin/work_category[1]/pc/work_category[2]/books/work_category[3]/drama/order[0]/release_d/options[0]/JPN/options[1]/CHI/options[2]/CHI_HANS/options[3]/CHI_HANT/options[4]/NM/options_name[0]/日语作品/options_name[1]/中文作品/options_name[2]/简体字作品/options_name[3]/繁字体作品/options_name[4]/不限语言/per_page/30/page/${pageIndex}/format/json/?cdn_cache=1`
     //音声分类
     let url = `https://www.dlsite.com/maniax/sapi/=/language/jp/sex_category/+${keyVal}/work_category[0]/doujin/work_category[1]/books/work_category[2]/pc/order[0]/release_d/work_type_category[0]/audio/work_type_category_name[0]/音声・ASMR/per_page/30/page/${pageIndex}/format/json/?cdn_cache=1`
-    let urlRj = "https://www.dlsite.com/home/api/=/product.json?workno="
+    let urlRj = pubilcMoudules.DL_URL
     fetch(url).then(res => {
         return res.json()
     }).then(myJson=>{
@@ -85,15 +82,10 @@ const getDlsiteNew = (pageIndex,val) => {
     })
 }
 const getDlsiteApi = async (urls) => {
-    const texts = await Promise.all(urls.map(async url => {
-        const res = await fetch(url)
-        return res.json()
-    }))
+    const texts = await pubilcMoudules.fetchUrl(urls)
     const result = texts.flat(Infinity)
     let dlComments = result.map(item => {   
-        item.age_category_string = item.age_category_string.replace('adult','R18')
-        item.age_category_string = item.age_category_string.replace('general', '全年龄')
-        item.age_category_string = item.age_category_string.replace('r15', 'R15')
+        item.age_category_string = pubilcMoudules.displace(item.age_category_string)
         return item
     })
     outPutHtml(dlComments)
@@ -102,13 +94,13 @@ const searchFunc = () => {
     const eventFunc = (val) =>{
         pubilcMoudules.loadingShow()
         pageDiv.style.display = 'none'
-        let url = "https://www.dlsite.com/home/api/=/product.json?workno="
-        if (val.match(Num_REGEX)){
+        let url = pubilcMoudules.DL_URL
+        if (val.match(pubilcMoudules.Num_REGEX)){
             val = 'RJ' + val
         }
-        if (pubilcMoudules.escapeRegex(val).match(RJ_REGEX)) {
+        if (pubilcMoudules.escapeRegex(val).match(pubilcMoudules.RJ_REGEX)) {
             pageIndex = 1
-            let urls = val.match(RJ_REGEX).map(item => {
+            let urls = val.match(pubilcMoudules.RJ_REGEX).map(item => {
                 return url + item.toUpperCase()
             })
             getDlsiteApi(urls)
@@ -131,46 +123,28 @@ const searchFunc = () => {
 }
 const outPutHtml = (dlComments) => {
     let count = dlComments.length
-    let dlsiteUrl = []
-    let hvdbUrl = []
     if (count < 30){
         pageDiv.style.display = 'none'
     }
     countEle.innerHTML = `当前第${pageIndex}页共${count}条结果`
-    let voiceHtml = `${dlComments.map((item,index) => {
-        dlsiteUrl.push(`https://www.dlsite.com/maniax/work/=/product_id/${item.product_id}.html`)
-        hvdbUrl.push(`https://hvdb.me/Dashboard/WorkDetails/${item.product_id.slice(2)}`)
+    let voiceHtml = `${dlComments.map(item => {
         return `<li>
         <div class=img-style><img src=${pubilcMoudules.getImgSrc(item.product_id)}></img></div>
-        <div class=text-style>
-            <button class=text-style-btn id=dlsiteUrl${index}>打开网址</button>
-            <button class=text-style-btn id=hvdbUrl${index}>打开HVDB</button>
+        <div class="text-style event-menu">
+            <button class=text-style-btn data-action=openDL data-name="${item.product_id}">打开网址</button>
+            <button class=text-style-btn data-action=openHvdb data-name="${item.product_id}">打开HVDB</button>
             <div class=text-style-div>${item.product_id}</div>
             <div class=text-style-div>${item.product_name}</div>
+            <div class=text-style-div>${item.regist_date}</div>
             <div class=text-style-div>${item.age_category_string}</div>
             <div class=text-style-div>${item.work_type_string}</div>
             <div class=text-style-div>${item.genres.map(r => { return r.name})}</div>
         </div>
         </li>`}).join('')}`
     voiceListHtml.innerHTML = voiceHtml
-    openUrl(dlsiteUrl, hvdbUrl)
+    let menu = document.querySelectorAll('.event-menu')
+    new pubilcMoudules.eventMenu(menu)
     pubilcMoudules.loadingClose()
-}
-const openUrl = (dlsiteUrl, hvdbUrl) => {
-    dlsiteUrl.map((url, index) => {
-        let dlsiteUrlBtn = document.getElementById(`dlsiteUrl${index}`)
-        dlsiteUrlBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            shell.openExternal(url)
-        })
-    })
-    hvdbUrl.map((url, index) => {
-        let hvdbUrlBtn = document.getElementById(`hvdbUrl${index}`)
-        hvdbUrlBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            shell.openExternal(url)
-        })
-    })
 }
 pubilcMoudules.loadingClose()
 getDlsiteNew(pageIndex, searchVal.value)

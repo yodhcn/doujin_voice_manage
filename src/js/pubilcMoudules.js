@@ -1,3 +1,10 @@
+const path = require('path')
+const { shell } = require('electron')
+
+const RJ_REGEX = new RegExp("[BRV][JE][0-9]{6}", "gi")
+const DL_URL = "https://www.dlsite.com/home/api/=/product.json?workno="
+const Num_REGEX = new RegExp("[0-9]{6}", "gi")
+
 const loadingShow = () => {
     const loadingIcon = document.getElementById('loading-gif')
     loadingIcon.style.display = "block"
@@ -54,4 +61,86 @@ const ctrlF = (searchVal) => {
         }
     })
 }
-export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF}
+
+const displace = (item) => {
+    item = item.replace('adult', 'R18')
+    item = item.replace('general', '全年龄')
+    item = item.replace('r15', 'R15')
+    return item
+}
+
+const timetrans = (date) => {
+    const Y = date.getFullYear() + '-';
+    const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+    const D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' ';
+    const h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+    const m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+    const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+    return Y + M + D + h + m + s;
+}
+
+//fetch 
+const fetchUrl = async (urls) => {
+    return Promise.all(urls.map(async url => {
+        const res = await fetch(url)
+        return res.json()
+    }))
+}
+//搜索查询
+const selectMatchItem = (lists, keyWord) => {
+
+    let reg = new RegExp(escapeRegex(keyWord), 'gi')
+    let resArr = []
+
+    lists.filter(item => {
+
+        if (reg.test(item.age_category_string) || reg.test(item.fileName)) {
+
+            resArr.push(item)
+
+        }
+
+    })
+
+    return resArr
+}
+//click event
+class eventMenu {
+    constructor(elem, currentPath) {
+        [...elem].forEach(ele => {
+            this._ele = ele
+            this._currentPath = currentPath
+            ele.onclick = this.onClick.bind(this)
+        })
+    }
+
+    openFile(id) {
+        let filePath = path.join(this._currentPath, id)
+        shell.openPath(filePath)
+    }
+
+    openDir(id) {
+        let filePath = path.join(this._currentPath, id)
+        shell.openPath(filePath)
+    }
+
+    openDL(id) {
+        let url = `https://www.dlsite.com/maniax/work/=/product_id/${id}.html`
+        shell.openExternal(url)
+    }
+    openHvdb(id) {
+        let url = `https://hvdb.me/Dashboard/WorkDetails/${id.slice(2)}`
+        shell.openExternal(url)
+    }
+
+    onClick(event) {
+        let target = event.target
+        if (target.nodeName.toLocaleLowerCase() === 'button') {
+            //dataset 获取data-*自定义属性，getAttribute可以获取任何属性 target.getAttribute('*')
+            let action = target.dataset.action
+            let id = target.dataset.name
+            this[action](id)
+        }
+    }
+}
+export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF, displace, timetrans, fetchUrl, selectMatchItem, RJ_REGEX, DL_URL, Num_REGEX,eventMenu}
