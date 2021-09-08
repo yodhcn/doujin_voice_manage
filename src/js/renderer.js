@@ -38,7 +38,7 @@ const refreshFunc = (e) => {
 
 }
 const previousFunc = (e) => {
-    DLobj.currentPage = DLobj.currentPage - 1
+    DLobj.currentPage = DLobj.currentPage === 1 ? DLobj.currentPage : DLobj.currentPage - 1
     if (DLobj.currentPage === 1) {
         pubilcMoudules.btnAnimation(false)
     }
@@ -49,7 +49,7 @@ const previousFunc = (e) => {
 const nextFunc = (e) => {
 
     pubilcMoudules.btnAnimation(true)
-    DLobj.currentPage = DLobj.currentPage + 1
+    DLobj.currentPage = DLobj.currentPage === Math.ceil(DLobj.dataTotal / DLobj.pageSize) ? Math.ceil(DLobj.dataTotal / DLobj.pageSize) : DLobj.currentPage + 1
     e.preventDefault()
     DLobj.mergeLocalDlList(pubilcMoudules.pagination(DLobj.currentPage, DLobj.pageSize, DLobj.dlsiteData))
 
@@ -94,13 +94,19 @@ window.addEventListener('keydown',e => {
         e.preventDefault()
         document.getElementById('rj-search').focus()
     }
-    if (e.key === "ArrowRight") {
-        console.log(e.key)
-        nextFunc(e)
-    }
-    if (e.key === "ArrowLeft") {
-        previousFunc(e)
+    if (document.activeElement.tagName === "BODY"){
+        switch (e.key) {
+
+            case "ArrowRight":
+                nextFunc(e)
+                break
+
+            case "ArrowLeft":
+                previousFunc(e)
+                break
+        }
     }
 })
+
 DLobj.getList(DLobj.currentPath)
 

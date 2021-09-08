@@ -12,9 +12,10 @@ const pageDiv = document.getElementById('page-div')
 
 const DLobj = {
     currentPage:1,
-    pageSize:30,
+    pageSize:50,
     dataTotal:0,
     pageTotal:0,
+    localDirList: [],
     dlsiteData: [],
     currentPath: localStorage.getItem('path') || 'H:\\Voices',
     //获取本地文件目录
@@ -23,6 +24,8 @@ const DLobj = {
 
             if (err) throw err
             pubilcMoudules.loadingShow()
+            this.currentPage = 1
+            this.localDirList = localDirList
             this.dlsiteData = localDirList
             this.dataTotal = localDirList.length
             this.mergeLocalDlList(pubilcMoudules.pagination(this.currentPage, this.pageSize, this.dlsiteData))                
@@ -136,27 +139,30 @@ const DLobj = {
     async eventFunc(val) {
         //提取val字符中的rj组成array
         let rjArr = pubilcMoudules.escapeRegex(val).match(pubilcMoudules.RJ_REGEX)
-        if (rjArr) {
-            let newArr = []
-            rjArr.map(rjVal => {
-                let matchResult = pubilcMoudules.selectMatchItem(rjVal, this.dlsiteData)
-                if (matchResult.length === 0) {
-                    newArr.push(rjVal)
-                }
-                else {
-                    newArr.push(matchResult)
-                }
-            })
-            this.dlsiteData = [...new Set(newArr.flat(Infinity))]
-            this.dataTotal = this.dlsiteData.length
-            this.currentPage = 1
-            this.mergeLocalDlList(pubilcMoudules.pagination(this.currentPage, this.pageSize, this.dlsiteData))
-        }
-        else {
-            this.currentPage = 1
-            this.dlsiteData = pubilcMoudules.selectMatchItem(val, this.dlsiteData)
-            this.dataTotal = this.dlsiteData.length
-            this.mergeLocalDlList(pubilcMoudules.pagination(this.currentPage, this.pageSize, this.dlsiteData))
+        switch (rjArr) {
+            case null:
+                this.currentPage = 1
+                this.dlsiteData = pubilcMoudules.selectMatchItem(val, this.localDirList)
+                this.dataTotal = this.dlsiteData.length
+                this.mergeLocalDlList(pubilcMoudules.pagination(this.currentPage, this.pageSize, this.dlsiteData))
+                break
+        
+            default:
+                let newArr = []
+                rjArr.map(rjVal => {
+                    let matchResult = pubilcMoudules.selectMatchItem(rjVal, this.localDirList)
+                    if (matchResult.length === 0) {
+                        newArr.push(rjVal)
+                    }
+                    else {
+                        newArr.push(matchResult)
+                    }
+                })
+                this.dlsiteData = [...new Set(newArr.flat(Infinity))]
+                this.dataTotal = this.dlsiteData.length
+                this.currentPage = 1
+                this.mergeLocalDlList(pubilcMoudules.pagination(this.currentPage, this.pageSize, this.dlsiteData))
+                break
         }
     }
 }
