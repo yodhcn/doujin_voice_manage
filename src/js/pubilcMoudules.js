@@ -1,9 +1,12 @@
+
 const path = require('path')
 const { shell } = require('electron')
 
 const RJ_REGEX = new RegExp("[BRV][JE][0-9]{6}", "gi")
 const DL_URL = "https://www.dlsite.com/home/api/=/product.json?workno="
 const Num_REGEX = new RegExp("[0-9]{6}", "gi")
+const previousBtn = document.getElementById('previous')
+const homePageBtn = document.getElementById('homePage')
 
 const loadingShow = () => {
     const loadingIcon = document.getElementById('loading-gif')
@@ -13,9 +16,36 @@ const loadingClose = () => {
     const loadingIcon = document.getElementById('loading-gif')
     loadingIcon.style.display = "none"
 }
+const btnAnimation = (flag) => {
+    if (flag == true) {
+        previousBtn.style.cssText = `
+            transform: translate3d(-50px, 0px, 20px);
+            transition: transform 0.3s ease-out;
+        `
+        homePageBtn.style.cssText = `
+            transform: translate3d(-25px, -45px, 0px);
+            transition: transform 0.3s ease-out;
+        `
+    }
+    else {
+        previousBtn.style.cssText = `
+            transform: translate3d(0px, 0px, 0px);
+            transition: transform 0.3s ease-out;  
+        `
+        homePageBtn.style.cssText = `     
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.3s ease-out;
+        `
+    }
+}
+//pagetion
+const pagination = (currenPage,pageSize,array) => {
+    let offset = (currenPage - 1) * pageSize
+    return (offset + pageSize >= array.length) ? array.slice(offset, array.length) : array.slice(offset, offset + pageSize)
+}
 //get img url 
 const getImgSrc = (rjcode) => {
-    let imgSrc
+    let imgSrc = ""
     let rj = rjcode
     let imgType = "doujin"
     let rj_group
@@ -78,23 +108,29 @@ const timetrans = (date) => {
     const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
     return Y + M + D + h + m + s;
 }
-
 //fetch 
 const fetchUrl = async (urls) => {
-    return Promise.all(urls.map(async url => {
-        const res = await fetch(url)
-        return res.json()
-    }))
+    try {
+        loadingShow()
+        const data = await Promise.all(urls.map(url => fetch(url)))
+        const ext = await Promise.all(data.map(res => res.json()))
+        return ext.flat(Infinity)
+    } 
+    catch (err) 
+    {
+        loadingClose()
+        alert('网络无法连接，请检查')
+    }
 }
 //搜索查询
-const selectMatchItem = (lists, keyWord) => {
-
+const selectMatchItem = (keyWord,lists) => {
+ 
     let reg = new RegExp(escapeRegex(keyWord), 'gi')
     let resArr = []
 
     lists.filter(item => {
 
-        if (reg.test(item.age_category_string) || reg.test(item.fileName)) {
+        if (reg.test(item)) {
 
             resArr.push(item)
 
@@ -143,4 +179,4 @@ class eventMenu {
         }
     }
 }
-export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF, displace, timetrans, fetchUrl, selectMatchItem, RJ_REGEX, DL_URL, Num_REGEX,eventMenu}
+export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF, displace, timetrans, fetchUrl, selectMatchItem, pagination, btnAnimation,RJ_REGEX, DL_URL, Num_REGEX,eventMenu}

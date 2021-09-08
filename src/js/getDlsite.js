@@ -15,7 +15,7 @@ const turnPage = () => {
     nextBtn.addEventListener('click', e => {
         e.preventDefault()
         pageIndex = pageIndex + 1
-        btnAnimation(true)
+        pubilcMoudules.btnAnimation(true)
         getDlsiteNew(pageIndex, searchVal.value)
     })
     previousBtn.addEventListener('click', e => {
@@ -23,7 +23,7 @@ const turnPage = () => {
         if (pageIndex > 1){
             pageIndex = pageIndex - 1
             if(pageIndex == 1){
-                btnAnimation(false)
+                pubilcMoudules.btnAnimation(false)
             }
         }
         getDlsiteNew(pageIndex, searchVal.value)
@@ -31,32 +31,9 @@ const turnPage = () => {
     homePageBtn.addEventListener('click',e => {
         e.preventDefault()
         pageIndex = 1
-        btnAnimation(false)
+        pubilcMoudules.btnAnimation(false)
         getDlsiteNew(pageIndex, searchVal.value)
     })
-}
-const btnAnimation = (flag) =>{
-    if(flag == true){
-        previousBtn.style.cssText = `
-            transform: translate3d(-50px, 0px, 20px);
-            transition: transform 0.3s ease-out;
-        `
-        homePageBtn.style.cssText = `
-            transform: translate3d(-25px, -45px, 0px);
-            transition: transform 0.3s ease-out;
-        `
-    }
-    else
-    {
-        previousBtn.style.cssText = `
-            transform: translate3d(0px, 0px, 0px);
-            transition: transform 0.3s ease-out;  
-        `
-        homePageBtn.style.cssText = `     
-            transform: translate3d(0, 0, 0);
-            transition: transform 0.3s ease-out;
-        `
-    }
 }
 const getDlsiteNew = (pageIndex,val) => {
     pubilcMoudules.loadingShow()
@@ -72,11 +49,13 @@ const getDlsiteNew = (pageIndex,val) => {
         let urlArr = myJson.map(item => {
             return urlRj + item.product_id
         })
-        pageDiv.style.display = 'block'
         getDlsiteApi(urlArr)
     }).catch(err => {
         setTimeout(() => {
-            alert(err)
+            console.log(err)
+            alert("无法连接网络")
+            voiceListHtml.innerHTML = ""
+            pageDiv.style.display = "none"
         }, 10,pubilcMoudules.loadingClose())
         
     })
@@ -125,6 +104,9 @@ const outPutHtml = (dlComments) => {
     let count = dlComments.length
     if (count < 30){
         pageDiv.style.display = 'none'
+    }else
+    {
+        pageDiv.style.display = 'block'
     }
     countEle.innerHTML = `当前第${pageIndex}页共${count}条结果`
     let voiceHtml = `${dlComments.map(item => {

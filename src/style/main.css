@@ -223,6 +223,9 @@ footer .btn-p1 {
 .btn-p3 {
   background-color: rgb(204, 0, 160);
 }
+#page-div{
+  display: none;
+}
 /* loader */
 .loader {
   background: rgba(0, 0, 0, 0.8);
