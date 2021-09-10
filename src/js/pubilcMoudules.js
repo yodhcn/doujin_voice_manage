@@ -1,12 +1,22 @@
 
 const path = require('path')
 const { shell } = require('electron')
-
-const RJ_REGEX = new RegExp("[BRV][JE][0-9]{6}", "gi")
 const DL_URL = "https://www.dlsite.com/home/api/=/product.json?workno="
+const RJ_REGEX = new RegExp("[BRV][JE][0-9]{6}", "gi")
 const Num_REGEX = new RegExp("[0-9]{6}", "gi")
+const GET_NUM = new RegExp("[1-9]*", "g")
+const WHICHPAGE = new RegExp("^@[0-9]*$", "g")
 const previousBtn = document.getElementById('previous')
 const homePageBtn = document.getElementById('homePage')
+const nextBtn = document.getElementById('next')
+const pageSize = document.getElementById('pageCount')
+const voiceList = document.getElementById('voice-list')
+const countEle = document.getElementById('count')
+const selectPathBtn = document.getElementById('select-path')
+const searchBtn = document.getElementById('search-btn')
+const searchVal = document.getElementById('rj-search')
+const refreshBtn = document.getElementById('refresh')
+
 
 const loadingShow = () => {
     const loadingIcon = document.getElementById('loading-gif')
@@ -179,4 +189,4 @@ class eventMenu {
         }
     }
 }
-export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF, displace, timetrans, fetchUrl, selectMatchItem, pagination, btnAnimation,RJ_REGEX, DL_URL, Num_REGEX,eventMenu}
+export { loadingShow, loadingClose, getImgSrc, escapeRegex, ctrlF, displace, timetrans, fetchUrl, selectMatchItem, pagination, btnAnimation, eventMenu, RJ_REGEX, DL_URL, Num_REGEX, WHICHPAGE, GET_NUM, nextBtn, pageSize, voiceList, countEle, selectPathBtn, searchBtn, searchVal, refreshBtn, homePageBtn, previousBtn}

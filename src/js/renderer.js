@@ -1,11 +1,17 @@
-import * as dlobjMoudules from './dlObj.js'
+import * as dlobjMoudules from './commentMain.js'
 import * as pubilcMoudules from './pubilcMoudules.js'
 const ipc = require('electron').ipcRenderer
 const DLobj = dlobjMoudules.DLobj
-const previousBtn = document.getElementById('previous')
-const homePageBtn = document.getElementById('homePage')
-const nextBtn = document.getElementById('next')
-
+const previousBtn = pubilcMoudules.previousBtn
+const homePageBtn = pubilcMoudules.homePageBtn
+const nextBtn = pubilcMoudules.nextBtn
+const pageSize = pubilcMoudules.pageSize
+const whichPage = pubilcMoudules.WHICHPAGE
+const getNum = pubilcMoudules.GET_NUM
+const selectPathBtn = pubilcMoudules.selectPathBtn
+const searchBtn = pubilcMoudules.searchBtn
+const searchVal = pubilcMoudules.searchVal
+const refreshBtn = pubilcMoudules.refreshBtn
 pubilcMoudules.loadingClose()
 
 ipc.on('selected-directory', (e, path) => {
@@ -23,78 +29,115 @@ ipc.on('selected-directory', (e, path) => {
 
 const openFileDialog = (e) => {
 
-    e.preventDefault()
-
     ipc.send('open-file-dialog')
 
 }
-dlobjMoudules.selectPathBtn.addEventListener('click', openFileDialog)
+selectPathBtn.addEventListener('click', openFileDialog)
 
 const refreshFunc = (e) => {
 
-    e.preventDefault()
 
     DLobj.getList(DLobj.currentPath)
 
 }
 const previousFunc = (e) => {
-    DLobj.currentPage = DLobj.currentPage === 1 ? DLobj.currentPage : DLobj.currentPage - 1
-    if (DLobj.currentPage === 1) {
-        pubilcMoudules.btnAnimation(false)
-    }
-    e.preventDefault()
 
-    DLobj.mergeLocalDlList(pubilcMoudules.pagination(DLobj.currentPage, DLobj.pageSize, DLobj.dlsiteData))
+    if (DLobj.currentPage === 1) {
+
+        e.preventDefault()
+        
+    }
+    else
+    {   
+        DLobj.currentPage = DLobj.currentPage - 1
+        
+        DLobj.callMain()
+    }
 }
 const nextFunc = (e) => {
 
-    pubilcMoudules.btnAnimation(true)
-    DLobj.currentPage = DLobj.currentPage === Math.ceil(DLobj.dataTotal / DLobj.pageSize) ? Math.ceil(DLobj.dataTotal / DLobj.pageSize) : DLobj.currentPage + 1
-    e.preventDefault()
-    DLobj.mergeLocalDlList(pubilcMoudules.pagination(DLobj.currentPage, DLobj.pageSize, DLobj.dlsiteData))
+    let paged = Math.ceil(DLobj.dataTotal / DLobj.pageSize)
+
+    if (DLobj.currentPage === paged){
+
+        e.preventDefault()
+    }
+    else
+    {
+        DLobj.currentPage = DLobj.currentPage + 1
+
+        DLobj.callMain()
+    }
 
 }
-dlobjMoudules.refreshBtn.addEventListener('click', refreshFunc)
+const whichPageFn = () => {
 
-dlobjMoudules.searchVal.addEventListener('keydown', e => {
-    if (e.key == 'Enter') {
+    let val = searchVal.value
 
-        e.preventDefault()
-        DLobj.eventFunc(dlobjMoudules.searchVal.value)
+    if (val.match(whichPage)) {
+
+        let paged = Math.ceil(DLobj.dataTotal / DLobj.pageSize)
+
+        let userPaged = parseInt(val.match(getNum).filter(Boolean).toString())
+
+        DLobj.currentPage = userPaged < paged ? userPaged : paged
+
+        DLobj.callMain()
 
     }
+    else {
+
+        DLobj.searchEvent(searchVal.value.toUpperCase())
+    }
+}
+
+refreshBtn.addEventListener('click', refreshFunc)
+
+searchVal.addEventListener('keydown', e => {
+
+    if (e.key === 'Enter') {
+
+        whichPageFn()
+
+    }
+
 })
 
-dlobjMoudules.searchVal.addEventListener('input', e => {
-    if (dlobjMoudules.searchVal.value == "") {
-        e.preventDefault()
+searchVal.addEventListener('input', e => {
+    
+    if (searchVal.value == "") {
+
         DLobj.getList(DLobj.currentPath)
+    
     }
-})
-
-dlobjMoudules.searchBtn.addEventListener('click', e => {
-
-    e.preventDefault()
-    DLobj.eventFunc(dlobjMoudules.searchVal.value)
 
 })
+
+searchBtn.addEventListener('click', whichPageFn)
 
 nextBtn.addEventListener('click', nextFunc)
+
 previousBtn.addEventListener('click', previousFunc)
 
 homePageBtn.addEventListener('click',e => {
-    e.preventDefault()
+
     DLobj.currentPage = 1
+
     pubilcMoudules.btnAnimation(false)
-    DLobj.mergeLocalDlList(pubilcMoudules.pagination(DLobj.currentPage, DLobj.pageSize, DLobj.dlsiteData))
+
+    DLobj.callMain()
 })
 
 window.addEventListener('keydown',e => {
     if (e.ctrlKey && e.key === "f") {
-        e.preventDefault()
+        
         document.getElementById('rj-search').focus()
     }
-    if (document.activeElement.tagName === "BODY"){
+    if (e.key === "Escape"){
+        document.getElementById('rj-search').blur()
+        pageSize.blur()
+    }
+    if (document.activeElement.tagName !== "INPUT"){
         switch (e.key) {
 
             case "ArrowRight":
@@ -105,6 +148,21 @@ window.addEventListener('keydown',e => {
                 previousFunc(e)
                 break
         }
+    }
+})
+
+pageSize.addEventListener('keydown',e => {
+
+    let condition = parseInt(pageSize.value) === 30 || parseInt(pageSize.value) === 50
+
+    if (e.key === 'Enter' && condition){
+        
+        DLobj.pageSize = parseInt(pageSize.value)
+
+        DLobj.currentPage = 1
+        
+        DLobj.callMain()
+
     }
 })
 

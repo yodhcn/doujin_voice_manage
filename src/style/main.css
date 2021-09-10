@@ -2,11 +2,14 @@ body {
   background-color: #336699;
   color: blanchedalmond;
 }
-a{
+a {
   outline: none;
 }
 button {
   font-family: "PIngFang SC";
+  outline: none;
+}
+input{
   outline: none;
 }
 header {
@@ -136,6 +139,14 @@ header .vertical-container-dlsite {
   -webkit-justify-content: space-between;
   justify-content: space-between;
 }
+header .page-c-style {
+  width: 20px;
+  border: none;
+  height: 16px;
+  background: #6796c5;
+  color: blanchedalmond;
+  font-size: 16px;
+}
 /* main style */
 main {
   padding-top: 75px;
@@ -211,7 +222,7 @@ footer .ft-btn {
   bottom: 15px;
   right: 15px;
 }
-footer .ft-btn:hover{
+footer .ft-btn:hover {
   background-color: #ccc;
 }
 footer .btn-p1 {
@@ -223,7 +234,7 @@ footer .btn-p1 {
 .btn-p3 {
   background-color: rgb(204, 0, 160);
 }
-#page-div{
+#page-div {
   display: none;
 }
 /* loader */
