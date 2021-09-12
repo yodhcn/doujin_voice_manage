@@ -164,16 +164,21 @@ main #voice-list li {
   justify-content: left;
   align-items: flex-start;
 }
+main .img-style{
+  width: 310px;
+  height: 228px;
+}
 main .text-style {
   margin-left: 2vw;
   display: inline-block;
 }
 main .text-style-div {
-  margin: 0.7vw 0;
+  margin: 7px 0;
 }
 main .img-style img {
-  width: 280px;
-  height: 210px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 main #voice-list button {
   background-color: #4caf50; /* Green */

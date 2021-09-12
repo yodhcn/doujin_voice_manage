@@ -42,7 +42,8 @@ const DLobj = {
                     product_name: item,
                     age_category_string: "未知",
                     work_type_string: "未知",
-                    chinese: "未知"
+                    chinese: "未知",
+                    genres: [{ name:"未知"}]
                 })
             }
         })
@@ -51,11 +52,10 @@ const DLobj = {
         let dlsiteComments = fetchResult.map(item => {
             item.age_category_string = pubilcMoudules.displace(item.age_category_string)
             this.pageingArr.forEach(pageingItem => {
-                if (pageingItem.match(pubilcMoudules.RJ_REGEX)) {
-                    const rj = pageingItem.match(pubilcMoudules.RJ_REGEX)[0]
-                    if (rj == item.product_id) {
-                        item.fileName = pageingItem
-                    }
+                const rjMatch = pageingItem.match(pubilcMoudules.RJ_REGEX)
+                const rj = rjMatch ? rjMatch.toString() : rjMatch
+                if (rj === item.product_id) {
+                    item.fileName = pageingItem
                 }
             })
             return item
@@ -85,7 +85,7 @@ const DLobj = {
 
                         buttonEle = item.product_id ? `<button class=text-style-btn data-action=openDL data-name="${item.product_id}">打开网址</button>` : ''
 
-                        item.chinese = item.fileName.match('汉化' || '中文') ? 'Yes' : 'No'
+                        item.chinese = item.fileName.match('汉化') ? 'Yes' : 'No'
                         
                         break
                 
@@ -109,6 +109,7 @@ const DLobj = {
                             <div class=text-style-div><span class=title-style>时间:</span> ${item.regist_date || localDate}</div>
                             <div class=text-style-div><span class=title-style>年龄:</span> ${item.age_category_string}</div>
                             <div class=text-style-div><span class=title-style>类型:</span> ${item.work_type_string}</div>
+                            <div class=text-style-div><span class=title-style>标签:</span> ${item.genres.map(r => { return r.name })}</div>
                             <div class=text-style-div><span class=title-style>汉化:</span> ${item.chinese}</div>
                         </div>
                     </li>`}).join('')}`

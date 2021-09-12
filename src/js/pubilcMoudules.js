@@ -103,9 +103,9 @@ const ctrlF = (searchVal) => {
 }
 
 const displace = (item) => {
-    item = item.replace('adult', 'R18')
-    item = item.replace('general', '全年龄')
-    item = item.replace('r15', 'R15')
+    [['adult', 'R18'], ['general', '全年龄'], ['r15', 'R15']].forEach(target => {
+        item = item === target[0] ? target[1] : item
+    })
     return item
 }
 
